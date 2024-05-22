@@ -28,14 +28,16 @@ async function getData(url) {
         let linkImg = $('#__next > div.Application_content__VOaJf > div.Application_subcontent__gDE_N > main > div:nth-child(1) > article > div > div > img').attr('src');
         let linkVideo = $('#__next > div.Application_content__VOaJf > div.Application_subcontent__gDE_N > main > div:nth-child(1) > article > div > div > video').attr('src');
         if (linkImg != undefined){
-        writeStream.write(`linkImg: ${linkImg}`)
-        download(linkImg, 'scraped/fetched.png', function(){console.log('Downloaded Scraped Image');})
+        writeStream.write(`linkImg: ${linkImg}\n`)
+        download(linkImg, `scraped/${linkImg.replace('https://cache.lahelu.com/',"")}.png`, function(){console.log('Downloaded Scraped Image');})
         } else {
-            writeStream.write(`linkVideo: ${linkVideo}`)
-            download(linkVideo, 'scraped/fetched.mp4', function(){console.log('Downloaded Scraped Video');})
+            writeStream.write(`linkVideo: ${linkVideo}\n`)
+            download(linkVideo, `scraped/${linkVideo.replace('https://cache.lahelu.com/',"")}.mp4`, function(){console.log('Downloaded Scraped Video');})
         }
         return;
 }
 // Usage example:
-const data = getData('https://lahelu.com/post/PyqJkGtcy');
+getData('https://lahelu.com/post/PgHLUo8AS');
+getData('https://lahelu.com/post/PSQnMj5Dr');
+getData('https://lahelu.com/post/PyamM2BKx');
 
