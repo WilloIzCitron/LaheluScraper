@@ -1,6 +1,6 @@
-const Humanoid = require("humanoid-js");
+// const Humanoid = require("humanoid-js");
+const puppeteer = require("puppeteer")
 const cheerio = require('cheerio');
-const express = require('express');
 const fs = require('fs');
 request = require('request');
 
@@ -13,23 +13,29 @@ var download = function(uri, filename, callback){
   });
 };
 
-let humanoid = new Humanoid();
 const writeStream = fs.createWriteStream('scraped.csv');
 
-const port = process.env.PORT || 4000;
-
-let app = express(port);
-
-humanoid.get("https://lahelu.com/post/PxW2Y04t2") // link target
-.then(res => {
-        const $ = cheerio.load(res.body);
-        let linkImg = $("head").find(`[property="og:image"]`).attr('content'); // get via property from head meta
+async function getData(url) {
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+    await page.goto(url, { waitUntil: 'networkidle2' });
+    const data = await page.evaluate(() => {
+        return{
+            html: document.documentElement.innerHTML
+        }
+        });
+        const $ = cheerio.load(data.html);
+        let linkImg = $('#__next > div.Application_content__VOaJf > div.Application_subcontent__gDE_N > main > div:nth-child(1) > article > div > div > img').attr('src');
+        let linkVideo = $('#__next > div.Application_content__VOaJf > div.Application_subcontent__gDE_N > main > div:nth-child(1) > article > div > div > video').attr('src');
+        if (linkImg != undefined){
         writeStream.write(`linkImg: ${linkImg}`)
-        download(linkImg, 'scraped/fetched.png', function(){
-            console.log('Downloaded Scraped Image');})
-}).catch(err => console.error(err))
-
-app.listen(port, () => {
-    console.log(`Server Established and  running on Port ⚡${port}`)
-})
+        download(linkImg, 'scraped/fetched.png', function(){console.log('Downloaded Scraped Image');})
+        } else {
+            writeStream.write(`linkVideo: ${linkVideo}`)
+            download(linkVideo, 'scraped/fetched.mp4', function(){console.log('Downloaded Scraped Video');})
+        }
+        return;
+}
+// Usage example:
+const data = getData('https://lahelu.com/post/PyqJkGtcy');
 
